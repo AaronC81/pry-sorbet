@@ -1,8 +1,35 @@
 # Sorpryse
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sorpryse`. To experiment with that code, run `bin/console` for an interactive prompt.
+This extension makes Pry work seamlessly with Sorbet projects.
 
-TODO: Delete this and the text above, and describe your gem
+**Before:** Incorrect method source
+
+```
+From: /home/aaron/.rbenv/versions/2.6.3/lib/ruby/gems/2.6.0/gems/sorbet-runtime-0.4.4929/lib/types/private/methods/_methods.rb @ line 208:
+Owner: #<Class:Foo>
+Visibility: public
+Number of lines: 35
+
+T::Private::ClassUtils.replace_method(mod, method_name) do |*args, &blk|
+  if !T::Private::Methods.has_sig_block_for_method(new_method)
+    # This should only happen if the user used alias_method to grab a handle
+    # to the original pre-unwound `sig` method. I guess we'll just proxy the
+    # call forever since we don't know who is holding onto this handle to
+```
+
+**After:** Method source and a signature!
+
+```
+From: playground/test.rb @ line 9:
+Owner: #<Class:Foo>
+Visibility: public
+Sorbet: sig { returns(Integer) }
+Number of lines: 3
+
+def self.bar
+  3
+end
+```
 
 ## Installation
 
@@ -22,17 +49,12 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Make sure you've required `sorpryse`. The `$` command in Pry will be
+automatically overwritten to add the Sorbet-specific functionality.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sorpryse.
+Bug reports and pull requests are welcome on GitHub at https://github.com/AaronC81/sorpryse.
 
 ## License
 
