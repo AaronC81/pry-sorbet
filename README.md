@@ -1,6 +1,7 @@
 # Sorpryse
 
-This extension makes Pry work seamlessly with Sorbet projects.
+Sorpryse (partly a portmanteu of "sorbet" and "pry", pronounced "surprise") is a
+Pry extension which enables it to work seamlessly with Sorbet projects.
 
 **Before:** Incorrect method source
 
