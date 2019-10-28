@@ -1,15 +1,15 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "sorpryse"
+require "pry-sorbet"
 
 Gem::Specification.new do |spec|
-  spec.name          = "sorpryse"
-  spec.version       = Sorpryse::VERSION
+  spec.name          = "pry-sorbet"
+  spec.version       = PrySorbet::VERSION
   spec.authors       = ["Aaron Christiansen"]
   spec.email         = ["aaronc20000@gmail.com"]
 
   spec.summary       = %q{Pry plugin for Sorbet}
-  spec.homepage      = "https://github.com/AaronC81/sorpryse"
+  spec.homepage      = "https://github.com/AaronC81/pry-sorbet"
   spec.license       = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage

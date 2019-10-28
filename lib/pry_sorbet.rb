@@ -1,5 +1,5 @@
 require_relative 'extension.rb'
 
-module Sorpryse
+module PrySorbet
   VERSION = '0.1.0'
 end

@@ -1,7 +1,7 @@
-# Sorpryse
+# pry-sorbet
 
-Sorpryse (partly a portmanteu of "sorbet" and "pry", pronounced "surprise") is a
-Pry extension which enables it to work seamlessly with Sorbet projects.
+pry-sorbet is a Pry extension which enables it to work seamlessly with Sorbet
+projects.
 
 **Before:** Incorrect method source
 
@@ -37,7 +37,7 @@ end
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sorpryse'
+gem 'pry-sorbet'
 ```
 
 And then execute:
@@ -46,16 +46,16 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install sorpryse
+    $ gem install pry-sorbet
 
 ## Usage
 
-Make sure you've required `sorpryse`. The `$` command in Pry will be
+Make sure you've required `pry-sorbet`. The `$` command in Pry will be
 automatically overwritten to add the Sorbet-specific functionality.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/AaronC81/sorpryse.
+Bug reports and pull requests are welcome on GitHub at https://github.com/AaronC81/pry-sorbet.
 
 ## License
 
