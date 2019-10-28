@@ -7,8 +7,63 @@ class Pry
       old_method_sections = instance_method(:method_sections)
 
       define_method(:method_sections) do |code_object|
+        sorbet_object = T::Private::Methods.signature_for_method(code_object)
+
+        if sorbet_object
+          call_chain = []
+
+          # Modifiers
+          call_chain << "generated" if sorbet_object.generated
+
+          if sorbet_object.mode != "standard"
+            # This is a string like "overridable_override"
+            call_chain += sorbet_object.mode.split("_")
+          end
+
+          # Parameters
+          all_parameters = []
+
+          #   Positional
+          all_parameters += sorbet_object.arg_types.map do |(name, type)|
+            "#{name}: #{type}"
+          end
+
+          #   Splat
+          if sorbet_object.rest_type
+            all_parameters << "#{sorbet_object.rest_name}: #{sorbet_object.rest_type}"
+          end
+
+          #   Keyword
+          all_parameters += sorbet_object.kwarg_types.map do |(name, type)|
+            "#{name}: #{type}"
+          end
+
+          #   Double-splat
+          if sorbet_object.rest_type
+            all_parameters << "#{sorbet_object.keyrest_name}: #{sorbet_object.keyrest_type}"
+          end
+
+          #   Block
+          if sorbet_object.block_type
+            all_parameters << "#{sorbet_object.block_name}: #{sorbet_object.block_type}"
+          end          
+
+          call_chain << "params(#{all_parameters.join(", ")})" if all_parameters.any?
+
+          # Returns
+          if sorbet_object.return_type.is_a?(T::Private::Types::Void)
+            call_chain << "void"
+          else
+            call_chain << "returns(#{sorbet_object.return_type})"
+          end
+
+          sorbet_string = "sig { #{call_chain.join(".")} }"
+        else
+          sorbet_string = "Unknown"
+        end
+
         old_method_sections.bind(self).(code_object).merge({
-          sorbet: "\n\e[1mSorbet:\e[0m ???"
+          sorbet: "\n\e[1mSorbet:\e[0m #{sorbet_string}"
         })
       end
 
@@ -22,6 +77,7 @@ class Pry
   end
 
   class Method
+    # TODO: only works once!? What!?
     define_method(:source_location) do
       loc = super()
 
@@ -33,7 +89,7 @@ class Pry
       # This is how Sorbet replaces methods.
       # If Sorbet undergoes drastic refactorings, this may need to be updated!
       if first_source_line.strip == "T::Private::ClassUtils.replace_method(mod, method_name) do |*args, &blk|"
-        T::Utils.signature_for_instance_method(@method.owner, @method.name).method.source_location
+        T::Private::Methods.signature_for_method(@method).method.source_location
       else
         loc
       end
@@ -41,12 +97,12 @@ class Pry
   end
 end
 
-module X
+class X
   extend T::Sig
 
-  sig { returns(Integer) }
-  def self.a
-    3
+  sig { overridable.params(x: Integer, y: Integer, z: String, bar: T::Boolean, foo: String, blk: T.proc.void).returns(T.any(String, Integer)) }
+  def self.a(x, y = 2, *z, bar:, **foo, &blk)
+    3 + x + y
   end
 end
 
@@ -54,4 +110,4 @@ x = 4
 
 binding.pry
 
-puts X.a
+puts X.a(1)
