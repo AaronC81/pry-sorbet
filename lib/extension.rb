@@ -77,7 +77,7 @@ class Pry
   end
 
   class Method
-    # TODO: only works once!? What!?
+    # Maybe use a dict or something, I think methods are suitable keys
     define_method(:source_location) do
       loc = super()
 
@@ -88,7 +88,10 @@ class Pry
 
       # This is how Sorbet replaces methods.
       # If Sorbet undergoes drastic refactorings, this may need to be updated!
-      if first_source_line.strip == "T::Private::ClassUtils.replace_method(mod, method_name) do |*args, &blk|"
+      initial_sorbet_line = "T::Private::ClassUtils.replace_method(mod, method_name) do |*args, &blk|"
+      replaced_sorbet_line = "mod.send(:define_method, method_sig.method_name) do |*args, &blk|"
+
+      if [initial_sorbet_line, replaced_sorbet_line].include?(first_source_line.strip)
         T::Private::Methods.signature_for_method(@method).method.source_location
       else
         loc
@@ -96,18 +99,3 @@ class Pry
     end
   end
 end
-
-class X
-  extend T::Sig
-
-  sig { overridable.params(x: Integer, y: Integer, z: String, bar: T::Boolean, foo: String, blk: T.proc.void).returns(T.any(String, Integer)) }
-  def self.a(x, y = 2, *z, bar:, **foo, &blk)
-    3 + x + y
-  end
-end
-
-x = 4
-
-binding.pry
-
-puts X.a(1)
