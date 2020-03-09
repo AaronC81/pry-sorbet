@@ -84,21 +84,11 @@ class Pry
     define_method(:source_location) do
       loc = super()
 
-      file_path, line = loc
-      return loc unless file_path && File.exists?(file_path)
+      return loc unless defined?(T::Private::Methods)
+      signature = T::Private::Methods.signature_for_method(@method)
+      return loc unless signature
 
-      first_source_line = IO.readlines(file_path)[line - 1]
-
-      # This is how Sorbet replaces methods.
-      # If Sorbet undergoes drastic refactorings, this may need to be updated!
-      initial_sorbet_line = "T::Private::ClassUtils.replace_method(mod, method_name) do |*args, &blk|"
-      replaced_sorbet_line = "mod.send(:define_method, method_sig.method_name) do |*args, &blk|"
-
-      if [initial_sorbet_line, replaced_sorbet_line].include?(first_source_line.strip)
-        T::Private::Methods.signature_for_method(@method).method.source_location
-      else
-        loc
-      end
+      return signature.method.source_location
     end
   end
 end
