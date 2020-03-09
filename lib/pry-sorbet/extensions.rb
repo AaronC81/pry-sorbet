@@ -32,8 +32,6 @@ class Pry
         call_chain = []
 
         # Modifiers
-        call_chain << "generated" if signature.generated
-
         if signature.mode != "standard"
           # This is a string like "overridable_override"
           call_chain += signature.mode.split("_")
