@@ -6,63 +6,16 @@ class Pry
       old_method_sections = instance_method(:method_sections)
 
       define_method(:method_sections) do |code_object|
-        sorbet_object = defined?(T::Private::Methods) && T::Private::Methods.signature_for_method(code_object)
+        signature = defined?(T::Private::Methods) && T::Private::Methods.signature_for_method(code_object)
 
-        if sorbet_object
-          call_chain = []
-
-          # Modifiers
-          call_chain << "generated" if sorbet_object.generated
-
-          if sorbet_object.mode != "standard"
-            # This is a string like "overridable_override"
-            call_chain += sorbet_object.mode.split("_")
-          end
-
-          # Parameters
-          all_parameters = []
-
-          #   Positional
-          all_parameters += sorbet_object.arg_types.map do |(name, type)|
-            "#{name}: #{type}"
-          end
-
-          #   Splat
-          if sorbet_object.rest_type
-            all_parameters << "#{sorbet_object.rest_name}: #{sorbet_object.rest_type}"
-          end
-
-          #   Keyword
-          all_parameters += sorbet_object.kwarg_types.map do |(name, type)|
-            "#{name}: #{type}"
-          end
-
-          #   Double-splat
-          if sorbet_object.rest_type
-            all_parameters << "#{sorbet_object.keyrest_name}: #{sorbet_object.keyrest_type}"
-          end
-
-          #   Block
-          if sorbet_object.block_type
-            all_parameters << "#{sorbet_object.block_name}: #{sorbet_object.block_type}"
-          end
-
-          call_chain << "params(#{all_parameters.join(", ")})" if all_parameters.any?
-
-          # Returns
-          if sorbet_object.return_type.is_a?(T::Private::Types::Void)
-            call_chain << "void"
-          else
-            call_chain << "returns(#{sorbet_object.return_type})"
-          end
-
-          sorbet_string = "sig { #{call_chain.join(".")} }"
+        signature_string = if signature
+          build_signature_string(signature)
         else
-          sorbet_string = "Unknown"
+          "Unknown"
         end
 
         old_method_sections.bind(self).(code_object).merge({
-          sorbet: "\n\e[1mSorbet:\e[0m #{sorbet_string}"
+          sorbet: "\n\e[1mSorbet:\e[0m #{signature_string}"
         })
       end
 
@@ -71,6 +24,59 @@ class Pry
       define_method(:method_header) do |code_object, line_num|
         old_method_header.bind(self).(code_object, line_num) \
           + method_sections(code_object)[:sorbet]
+      end
+
+      private
+
+      def build_signature_string(signature)
+        call_chain = []
+
+        # Modifiers
+        call_chain << "generated" if signature.generated
+
+        if signature.mode != "standard"
+          # This is a string like "overridable_override"
+          call_chain += signature.mode.split("_")
+        end
+
+        # Parameters
+        all_parameters = []
+
+        #   Positional
+        all_parameters += signature.arg_types.map do |(name, type)|
+          "#{name}: #{type}"
+        end
+
+        #   Splat
+        if signature.rest_type
+          all_parameters << "#{signature.rest_name}: #{signature.rest_type}"
+        end
+
+        #   Keyword
+        all_parameters += signature.kwarg_types.map do |(name, type)|
+          "#{name}: #{type}"
+        end
+
+        #   Double-splat
+        if signature.rest_type
+          all_parameters << "#{signature.keyrest_name}: #{signature.keyrest_type}"
+        end
+
+        #   Block
+        if signature.block_type
+          all_parameters << "#{signature.block_name}: #{signature.block_type}"
+        end
+
+        call_chain << "params(#{all_parameters.join(", ")})" if all_parameters.any?
+
+        # Returns
+        if signature.return_type.is_a?(T::Private::Types::Void)
+          call_chain << "void"
+        else
+          call_chain << "returns(#{signature.return_type})"
+        end
+
+        "sig { #{call_chain.join(".")} }"
       end
     end
   end
