@@ -1,5 +1,4 @@
-require 'sorbet-runtime'
-require 'pry'
+# frozen_string_literal: true
 
 class Pry
   class Command
@@ -7,7 +6,7 @@ class Pry
       old_method_sections = instance_method(:method_sections)
 
       define_method(:method_sections) do |code_object|
-        sorbet_object = T::Private::Methods.signature_for_method(code_object)
+        sorbet_object = defined?(T::Private::Methods) && T::Private::Methods.signature_for_method(code_object)
 
         if sorbet_object
           call_chain = []
