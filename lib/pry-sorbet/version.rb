@@ -1,4 +1,4 @@
-require_relative 'extension.rb'
+# frozen_string_literal: true
 
 module PrySorbet
   VERSION = '0.1.0'
