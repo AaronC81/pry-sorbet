@@ -46,7 +46,7 @@ class Pry
           #   Block
           if sorbet_object.block_type
             all_parameters << "#{sorbet_object.block_name}: #{sorbet_object.block_type}"
-          end          
+          end
 
           call_chain << "params(#{all_parameters.join(", ")})" if all_parameters.any?
 
