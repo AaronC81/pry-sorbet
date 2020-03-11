@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require 'pry'
-require 'pry-sorbet/version'
 
+module PrySorbet
+end
+
+require 'pry-sorbet/version'
 require 'pry-sorbet/extensions.rb'
+require 'pry-sorbet/commands.rb'
