@@ -5,8 +5,8 @@ require "pry-sorbet"
 Gem::Specification.new do |spec|
   spec.name          = "pry-sorbet"
   spec.version       = PrySorbet::VERSION
-  spec.authors       = ["Aaron Christiansen"]
-  spec.email         = ["aaronc20000@gmail.com"]
+  spec.authors       = ["Aaron Christiansen", "Ufuk Kayserilioglu"]
+  spec.email         = ["aaronc20000@gmail.com", "ufuk.kayserilioglu@shopify.com"]
 
   spec.summary       = %q{Pry plugin for Sorbet}
   spec.homepage      = "https://github.com/AaronC81/pry-sorbet"
