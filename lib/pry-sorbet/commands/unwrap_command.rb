@@ -30,7 +30,11 @@ module PrySorbet
       signatures_by_method.values.each do |signature|
         T::Configuration.without_ruby_warnings do
           T::Private::DeclState.current.without_on_method_added do
-            signature.owner.send(:define_method, signature.method_name, signature.method)
+            if signature.mode == T::Private::Methods::Modes.abstract
+              signature.owner.send(:remove_method, signature.method_name)
+            else
+              signature.owner.send(:define_method, signature.method_name, signature.method)
+            end
           end
         end
       end
